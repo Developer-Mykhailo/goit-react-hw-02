@@ -1,7 +1,14 @@
-import "./App.css";
+import Container from "./components/Container/Container";
+import Description from "./components/Description/Description";
 
 function App() {
-  return <></>;
+  return (
+    <>
+      <Container>
+        <Description />
+      </Container>
+    </>
+  );
 }
 
 export default App;
