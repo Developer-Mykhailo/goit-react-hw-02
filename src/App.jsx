@@ -1,15 +1,55 @@
+import { useState } from "react";
 import Container from "./components/Container/Container";
 import Description from "./components/Description/Description";
 import Feedback from "./components/Feedback/Feedback";
 import Options from "./components/Options/Options";
+import Notification from "./components/Notification/Notification";
 
 function App() {
+  const [feedback, setFeedback] = useState({
+    good: 0,
+    neutral: 0,
+    bad: 0,
+  });
+  const { good, neutral, bad } = feedback;
+
+  const updateFeedback = (feedbackType) => {
+    setFeedback((prev) => ({
+      ...prev,
+      [feedbackType]: prev[feedbackType] + 1,
+    }));
+  };
+
+  const handleReset = () => {
+    setFeedback({ good: 0, neutral: 0, bad: 0 });
+  };
+
+  const totalFeedback = good + neutral + bad;
+  const positivePercentage = totalFeedback
+    ? Math.round((good / totalFeedback) * 100)
+    : 0;
+
   return (
     <>
       <Container>
         <Description />
-        <Options />
-        <Feedback />
+        <Options
+          updateFeedback={updateFeedback}
+          handleReset={handleReset}
+          total={totalFeedback}
+        />
+
+        {!totalFeedback ? (
+          <Notification />
+        ) : (
+          <Feedback
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            positive={positivePercentage}
+            total={totalFeedback}
+          />
+        )}
       </Container>
     </>
   );
