@@ -1,18 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Container from "./components/Container/Container";
 import Description from "./components/Description/Description";
 import Feedback from "./components/Feedback/Feedback";
-import Options from "./components/Options/Options";
 import Notification from "./components/Notification/Notification";
+import Options from "./components/Options/Options";
 
 function App() {
-  const [feedback, setFeedback] = useState({
-    good: 0,
-    neutral: 0,
-    bad: 0,
+  // State
+  const [feedback, setFeedback] = useState(() => {
+    const saved = localStorage.getItem("feedback"); //from storage
+
+    return saved ? JSON.parse(saved) : { good: 0, neutral: 0, bad: 0 };
   });
+
   const { good, neutral, bad } = feedback;
 
+  //localStorage
+  useEffect(() => {
+    localStorage.setItem("feedback", JSON.stringify(feedback));
+  }, [feedback]);
+
+  // Derived values
+  const totalFeedback = good + neutral + bad;
+  const positivePercentage = totalFeedback
+    ? Math.round((good / totalFeedback) * 100)
+    : 0;
+
+  //Handlers
   const updateFeedback = (feedbackType) => {
     setFeedback((prev) => ({
       ...prev,
@@ -24,34 +38,29 @@ function App() {
     setFeedback({ good: 0, neutral: 0, bad: 0 });
   };
 
-  const totalFeedback = good + neutral + bad;
-  const positivePercentage = totalFeedback
-    ? Math.round((good / totalFeedback) * 100)
-    : 0;
-
+  //JSX
   return (
-    <>
-      <Container>
-        <Description />
-        <Options
-          updateFeedback={updateFeedback}
-          handleReset={handleReset}
+    <Container>
+      <Description />
+
+      <Options
+        updateFeedback={updateFeedback}
+        handleReset={handleReset}
+        total={totalFeedback}
+      />
+
+      {!totalFeedback ? (
+        <Notification />
+      ) : (
+        <Feedback
+          good={good}
+          neutral={neutral}
+          bad={bad}
+          positive={positivePercentage}
           total={totalFeedback}
         />
-
-        {!totalFeedback ? (
-          <Notification />
-        ) : (
-          <Feedback
-            good={good}
-            neutral={neutral}
-            bad={bad}
-            positive={positivePercentage}
-            total={totalFeedback}
-          />
-        )}
-      </Container>
-    </>
+      )}
+    </Container>
   );
 }
 
