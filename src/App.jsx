@@ -6,6 +6,7 @@ import Notification from "./components/Notification/Notification";
 import Options from "./components/Options/Options";
 
 function App() {
+  // State
   const [feedback, setFeedback] = useState({
     good: 0,
     neutral: 0,
@@ -13,6 +14,13 @@ function App() {
   });
   const { good, neutral, bad } = feedback;
 
+  // Derived values
+  const totalFeedback = good + neutral + bad;
+  const positivePercentage = totalFeedback
+    ? Math.round((good / totalFeedback) * 100)
+    : 0;
+
+  //Handlers
   const updateFeedback = (feedbackType) => {
     setFeedback((prev) => ({
       ...prev,
@@ -24,34 +32,29 @@ function App() {
     setFeedback({ good: 0, neutral: 0, bad: 0 });
   };
 
-  const totalFeedback = good + neutral + bad;
-  const positivePercentage = totalFeedback
-    ? Math.round((good / totalFeedback) * 100)
-    : 0;
-
+  //JSX
   return (
-    <>
-      <Container>
-        <Description />
-        <Options
-          updateFeedback={updateFeedback}
-          handleReset={handleReset}
+    <Container>
+      <Description />
+
+      <Options
+        updateFeedback={updateFeedback}
+        handleReset={handleReset}
+        total={totalFeedback}
+      />
+
+      {!totalFeedback ? (
+        <Notification />
+      ) : (
+        <Feedback
+          good={good}
+          neutral={neutral}
+          bad={bad}
+          positive={positivePercentage}
           total={totalFeedback}
         />
-
-        {!totalFeedback ? (
-          <Notification />
-        ) : (
-          <Feedback
-            good={good}
-            neutral={neutral}
-            bad={bad}
-            positive={positivePercentage}
-            total={totalFeedback}
-          />
-        )}
-      </Container>
-    </>
+      )}
+    </Container>
   );
 }
 
